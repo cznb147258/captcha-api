@@ -1,31 +1,17 @@
-from flask import Flask, jsonify, request
-from captcha_solver import RunningHubSlider
-from loguru import logger
+from flask import Flask, jsonify
+from captcha_solver import CaptchaSolver
 
 app = Flask(__name__)
 
-@app.route('/solve_captcha', methods=['POST'])
-def solve_captcha():
-    try:
-        solver = RunningHubSlider()
-        gen_data = solver.gen_captcha()
-        result = solver.check_captcha(gen_data)
-        if result['check_result'].get("code") == 200:
-            return jsonify({
-                "success": True,
-                "message": "验证成功",
-                "data": result
-            })
-        else:
-            return jsonify({
-                "success": False,
-                "message": "验证失败",
-                "data": result
-            })
-    except Exception as e:
-        logger.exception("异常")
-        return jsonify({"success": False, "message": str(e)})
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({"message": "Captcha API is running."})
 
+@app.route("/solve", methods=["GET"])
+def solve():
+    solver = CaptchaSolver()
+    result = solver.solve()
+    return jsonify(result)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
