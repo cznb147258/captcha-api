@@ -88,6 +88,26 @@ class RunningHubSlider:
         }
         response = self.session.post(url, data=json.dumps(payload), proxies=self.proxies)
         return response.json()
+@app.route('/proxy_test')
+def proxy_test():
+    try:
+        # 从代理池 API 获取代理
+        proxy_url = "http://api1.ydaili.cn/tools/MeasureApi.ashx?action=EAPI&secret=FCDF67FEA375BE0687311360BECD331260D14B775186213D95CF710ACD1D40CC7CA6CF95DD529340&number=1&orderId=SH20240319214202161&format=txt&split=3"
+        proxy_resp = requests.get(proxy_url)
+        proxy_ip = proxy_resp.text.strip()
+        proxies = {
+            "http": f"http://{proxy_ip}",
+            "https": f"http://{proxy_ip}"
+        }
+
+        # 用该代理请求 httpbin.org/ip
+        test_resp = requests.get("https://httpbin.org/ip", proxies=proxies, timeout=10)
+        return {
+            "proxy": proxy_ip,
+            "result": test_resp.json()
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.route('/solve', methods=['GET'])
 def solve():
