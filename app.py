@@ -56,13 +56,15 @@ def identify_gap(bg, tp):
 @app.route('/solve', methods=['GET'])
 def solve():
     ip = request.args.get('ip')
-    if not ip:
-        return jsonify({"error": "ip参数不能为空"}), 400
-
-    proxies = {
-        "http": f"http://{ip}",
-        "https": f"http://{ip}"
-    }
+    proxies = None
+    if ip:
+        proxies = {
+            "http": f"http://{ip}",
+            "https": f"http://{ip}"
+        }
+        logger.info(f"使用代理: {ip}")
+    else:
+        logger.info("未使用代理，直接请求")
 
     session = requests.Session()
     headers = {
